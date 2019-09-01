@@ -8,11 +8,17 @@
 #include "opencv2/video.hpp"
 #include "opencv2/videostab.hpp"
 
+#include <string>
+#include <stdlib.h>
+#include "SerialClass.h"
 #include <sstream>
 #include <iostream>
 #include <fstream>
 using namespace std;
 using namespace cv;
+
+char output[MAX_DATA_LENGTH];
+char incoming[MAX_DATA_LENGTH];
 
 const float calibrationSquareDimension = 0.01905f; // meters
 const float arucoSquareDimension = 0.1016f; //meters
@@ -125,22 +131,14 @@ void KalmanFilter() {
 
 }
 
-int main(int argv, char** argc) {
-	vector<Point2i> track;    //The track coordinates is stored in the track
-	inputPath("E:\\UoA\\Project\\ArUco\\LaneFinding\\circle_path.txt", track);
-	
-	Mat frame;
-	Mat cameraMatrix = Mat::eye(3, 3, CV_64F);
-	Mat distortionCoefficients;
-	Point2i Car_position;
-
+void startMonitoring(Mat frame, const Mat& cameraMatrix, const Mat& distortionCoefficients, float arucoSquareDimensions, Point2i& Car_position) {
 	VideoCapture vid(0);
 	namedWindow("Came", cv::WINDOW_FULLSCREEN);
 	vid.set(CAP_PROP_GIGA_FRAME_SENS_WIDTH, 1280);
-    vid.set(CAP_PROP_GIGA_FRAME_SENS_HEIGH, 720);
+	vid.set(CAP_PROP_GIGA_FRAME_SENS_HEIGH, 720);
 	if (!vid.isOpened())
 	{
-		return -1;
+		//return -1;
 	}
 	while (true)
 	{
@@ -152,6 +150,47 @@ int main(int argv, char** argc) {
 		imshow("Camera", frame);
 		if (waitKey(30) >= 0) break;
 	}
+}
+
+void PIDController() {
+
+}
+
+int main(int argv, char** argc) {
+	vector<Point2i> track;    //The track coordinates is stored in the track
+	inputPath("E:\\UoA\\Project\\ArUco\\LaneFinding\\circle_path.txt", track);
+	
+	Mat frame;
+	Mat cameraMatrix = Mat::eye(3, 3, CV_64F);
+	Mat distortionCoefficients;
+	Point2i Car_position;
+
+
+	//Serial output to Arduino
+	//Serial arduino("\\\\.\\COM4");
+
+
+	//if (arduino.IsConnected()) {
+	//	printf("Connected");
+
+	//	char incomingData[256] = "";
+	//	int dataLength = 255;
+	//	int readResult = 0;
+
+	//	while (arduino.IsConnected()) {
+	//		string command;
+	//		cin >> command;
+	//		char* charArray = new char[command.size() + 1];
+	//		copy(command.begin(), command.end(), charArray);
+	//		charArray[command.size()] = '\n';
+	//		arduino.WriteData(charArray, MAX_DATA_LENGTH);
+	//	}
+	//	
+	//}
+	//else {
+	//	cout << "error" << endl;
+	//}
+
 
 	return 0;
 }

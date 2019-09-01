@@ -65,7 +65,7 @@ bool loadCameraCalibration(string name, Mat& cameraMatrix, Mat& distortionCoeffi
 }
 
 //use 
-void MarkerPositionFinder(const Mat& frame, const Mat& camerMatrix, const Mat& distortionCoefficients, float arucoSquareDimensions)
+void MarkerPositionFinder(Mat frame, const Mat& camerMatrix, const Mat& distortionCoefficients, float arucoSquareDimensions, Point2i& Car_position)
 {
 	// create variable to store the camera information
 	char font = FONT_HERSHEY_PLAIN;
@@ -87,8 +87,8 @@ void MarkerPositionFinder(const Mat& frame, const Mat& camerMatrix, const Mat& d
 		{
 			aruco::drawDetectedMarkers(frame, markerCorners, markerIds);
 			aruco::drawAxis(frame, camerMatrix, distortionCoefficients, rotationVecotrs[i], translationVectors[i], 0.1f);
-			cout << "MARKER Position x=" << translationVectors[i][0] * 746.45 - 1.1826 << endl;
-			cout << "y = " << translationVectors[i][1] * 647.12 - 2.0599 << endl;
+			Car_position.x = translationVectors[i][0] * 746.45 - 1.1826;
+			Car_position.y = translationVectors[i][1] * 647.12 - 2.0599;
 
 		}
 
@@ -120,12 +120,37 @@ void inputPath(string name, vector<Point2i>& road) {
  	}
 
 }
+
+void KalmanFilter() {
+
+}
+
 int main(int argv, char** argc) {
 	vector<Point2i> track;    //The track coordinates is stored in the track
 	inputPath("E:\\UoA\\Project\\ArUco\\LaneFinding\\circle_path.txt", track);
 	
-	for (int i = 0;i < track.size();i++) {  //print out the point 
-		cout << track[i].x << endl;
+	Mat frame;
+	Mat cameraMatrix = Mat::eye(3, 3, CV_64F);
+	Mat distortionCoefficients;
+	Point2i Car_position;
+
+	VideoCapture vid(0);
+	namedWindow("Came", cv::WINDOW_FULLSCREEN);
+	vid.set(CAP_PROP_GIGA_FRAME_SENS_WIDTH, 1280);
+    vid.set(CAP_PROP_GIGA_FRAME_SENS_HEIGH, 720);
+	if (!vid.isOpened())
+	{
+		return -1;
+	}
+	while (true)
+	{
+		if (!vid.read(frame))
+			break;
+		MarkerPositionFinder(frame, cameraMatrix, distortionCoefficients, 0.1135f, Car_position);
+		cout << Car_position << endl;
+		namedWindow("Camera", cv::WINDOW_FULLSCREEN);
+		imshow("Camera", frame);
+		if (waitKey(30) >= 0) break;
 	}
 
 	return 0;

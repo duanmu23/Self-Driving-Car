@@ -1,0 +1,28 @@
+#include "pch.h"
+#include <string>
+
+using namespace System;
+using namespace System::IO::Ports;
+
+int main(array<System::String^>^ args)
+{	SerialPort port("COM3", 9600);
+
+	port.Open();
+	while (true)
+	{
+		int input = Convert::ToInt32(Console::ReadLine());
+		if (input == 1) {
+			int i = 1; // *Can use i as counter about string; need only 80 novel values
+
+			port.Write("A"+i); // currently "A" is chosen string, can change to different ASCII val for easier conversion by arduino 
+		}
+		else {
+			port.Write("A");
+		}
+	}
+    return 0;
+}
+
+// Note: project is a CLI console application
+// Arduino will recieve an ASCII value from string "A" to string ' "A" + 80 ' and convert to int 0 to 80.
+// I've been able to convert ASCII from C++ to 8 bit binary displayed with LEDs on Arduino (for visual confirmation. Will continue tmr.
